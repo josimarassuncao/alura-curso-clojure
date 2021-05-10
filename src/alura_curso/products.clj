@@ -10,15 +10,11 @@
   "returns the list of products and quantities to sell"
   list-of-products)
 
-(defn only-price
-  "gets just the price of the item"
-  [key]
-  ;(println key)
-  (-> list-of-products key :price))
-
 (defn get-only-prices []
   "returns the raw list of prices from the products"
-  (map only-price (keys list-of-products)))
+  (->> (get-products-data)
+       vals
+       (map #(:price %))))
 
 (defn remove-backpack []
   "remove the key :backpack from the collection"
