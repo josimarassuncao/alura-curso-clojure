@@ -18,13 +18,14 @@
 ; (list 0) // gets first element
 ; (get list 0) // gets first element
 
-; Using the function get avoids getting errors of non-existent indexes
+; Using the function get avoids getting errors of non-existent indexes, it returns the value nil
 ; It is also possible to provide a default value in case of an non-existent index
 ; (get list 17 -1) // -1 is the default value
 
 ; (update collection index function)
 ; (update prices 0 inc)
 ; (update prices 1 dec)
+; (get (update (get-prices) 0 inc) 0)
 
 (map discounted-price (filter apply-discount? (get-prices)))
 
