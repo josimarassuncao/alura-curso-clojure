@@ -1,13 +1,24 @@
 (ns alura-curso.products)
 
-(def list-of-products {:backpack 10,
-                       :shoes 10,
-                       :belt 10
-                       :shirt 10})
+(def list-of-products {:backpack {:quantity 10, :price 59.99} ,
+                       :shoes {:quantity 10, :price 159.99},
+                       :belt {:quantity 10, :price 19.99},
+                       :hat {:quantity 10 :price 109.99}
+                       :shirt {:quantity 10, :price 129.99}})
 
 (defn get-products-data []
   "returns the list of products and quantities to sell"
   list-of-products)
+
+(defn only-price
+  "gets just the price of the item"
+  [key]
+  ;(println key)
+  (-> list-of-products key :price))
+
+(defn get-only-prices []
+  "returns the raw list of prices from the products"
+  (map only-price (keys list-of-products)))
 
 (defn remove-backpack []
   "remove the key :backpack from the collection"
