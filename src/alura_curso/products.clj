@@ -30,3 +30,16 @@
   "adds a quantity for the backpack"
   [quantity]
   (update list-of-products :backpack #(+ %1 quantity)))
+
+(defn calculate-item
+  "multiplies quantity and price of an item"
+  [[key value]]
+  (println value)
+  (* (:price value) (:quantity value)))
+
+(defn inventory-balance []
+  "calculates the value of the whole of the inventory"
+  (->> (get-products-data)
+      (map calculate-item)
+      (reduce +)))
+
