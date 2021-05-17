@@ -64,3 +64,4 @@
   "returns the paid items from the list"
   (->> (get-products-data)
        (filter #(paid? (second %)))))
+
