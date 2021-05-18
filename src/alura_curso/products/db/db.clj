@@ -143,4 +143,11 @@
                :where [?entity :produto/palavras-chave ?in-palavra-chave]
                ] (d/as-of (d/db conn) #inst "2021-05-18T17:11:26.000-00:00") "Calculadora"))
 
-(pprint (d/delete-database db-uri))
+(def result-calculadoras (d/q '[:find (pull ?entity [*])
+                                :in $ ?in-palavra-chave
+                                :where [?entity :produto/palavras-chave ?in-palavra-chave]
+                                ] (d/db conn) "Calculadora"))
+(def first-calc (-> result-calculadoras first first :db/id))
+(pprint (d/pull (d/db conn) '[*] first-calc))
+
+;(pprint (d/delete-database db-uri))
