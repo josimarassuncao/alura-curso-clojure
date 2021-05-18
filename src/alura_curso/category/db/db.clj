@@ -45,6 +45,11 @@
                  :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/one
                  :db/doc         "O nome da categoria"}
+
+                ; Transações
+                {:db/ident :tx-data/ip
+                 :db/valueType :db.type/string
+                 :db/cardinality :db.cardinality/one}
                 ])
 
 (d/transact conn schema-v3)
@@ -68,8 +73,12 @@
 (def adesivos (novo-produto "Adesivos", "/adesivos", 5.10M))
 (def chaveiros (novo-produto "Chaveiros", "/chaveiros", 5.10M))
 (def chaveiro-calc {:produto/nome "Chaveiro Calculadora", :produto/slug "/chaveiro-calculadora"})
+;; Cria um metadado para a transacao
+(def tx-ip [:db/add "datomic.tx" :tx-data/ip "200.200.123.12"])
 
-(d/transact conn [pc-novo pc-veio calculadora-fin chaveiro-calc adesivos chaveiros])
+;(d/transact conn [pc-novo pc-veio calculadora-fin chaveiro-calc adesivos chaveiros])
+;; agrupa o metadado da transacao com os produtos
+(d/transact conn (conj [pc-novo pc-veio calculadora-fin chaveiro-calc adesivos chaveiros] tx-ip))
 
 ;;  Inclui as categorias
 (defn nova-categoria
@@ -223,5 +232,16 @@
   )
 (pprint (get-produtos-menor-preco-v2 (d/db conn)))
 
-;(pprint (d/delete-database db-uri))
+;; Query usando metadado associado com a transacao
+(defn produtos-adicionados-pelo-ip
+  [db ip]
+  (d/q '[:find (pull ?produto [*, {:produto/categoria [:categoria/nome]}])
+         :in $ ?ip-procurado
+         :where [?transacao :tx-data/ip ?ip-procurado]
+                 [?produto :produto/nome _ ?transacao]
+         ] db ip)
+  )
 
+(pprint (produtos-adicionados-pelo-ip (d/db conn) "200.200.123.12"))
+(pprint (produtos-adicionados-pelo-ip (d/db conn) "200.200.123.13"))
+;(pprint (d/delete-database db-uri))
