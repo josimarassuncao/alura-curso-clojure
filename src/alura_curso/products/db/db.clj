@@ -16,23 +16,23 @@
 (defn novo-produto
   ([nome slug preco] (novo-produto (uuid) nome slug preco))
   ([uuid nome slug preco]
-    {:produto/id  uuid
-     :produto/nome nome
-     :produto/slug slug
-     :produto/preco preco}))
+   {:produto/id    uuid
+    :produto/nome  nome
+    :produto/slug  slug
+    :produto/preco preco}))
 
-(def schema-v1 [{:db/ident :produto/nome
-                 :db/valueType :db.type/string
+(def schema-v1 [{:db/ident       :produto/nome
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O nome de um produto"}
-                {:db/ident :produto/slug
-                 :db/valueType :db.type/string
+                 :db/doc         "O nome de um produto"}
+                {:db/ident       :produto/slug
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O caminho para acessar esse produto via http"}
-                {:db/ident :produto/preco
-                 :db/valueType :db.type/bigdec
+                 :db/doc         "O caminho para acessar esse produto via http"}
+                {:db/ident       :produto/preco
+                 :db/valueType   :db.type/bigdec
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O preco de um produto com precisão monetária"} ])
+                 :db/doc         "O preco de um produto com precisão monetária"}])
 
 (d/transact conn schema-v1)
 
@@ -86,22 +86,22 @@
 
 
 ;; Aplica schema com opção Many
-(def schema-v2 [{:db/ident :produto/nome
-                 :db/valueType :db.type/string
+(def schema-v2 [{:db/ident       :produto/nome
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O nome de um produto"}
-                {:db/ident :produto/slug
-                 :db/valueType :db.type/string
+                 :db/doc         "O nome de um produto"}
+                {:db/ident       :produto/slug
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O caminho para acessar esse produto via http"}
-                {:db/ident :produto/preco
-                 :db/valueType :db.type/bigdec
+                 :db/doc         "O caminho para acessar esse produto via http"}
+                {:db/ident       :produto/preco
+                 :db/valueType   :db.type/bigdec
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O preco de um produto com precisão monetária"}
-                {:db/ident :produto/palavras-chave
-                 :db/valueType :db.type/string
+                 :db/doc         "O preco de um produto com precisão monetária"}
+                {:db/ident       :produto/palavras-chave
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/many
-                 :db/doc "As palavras-chave de produto"} ])
+                 :db/doc         "As palavras-chave de produto"}])
 
 (d/transact conn schema-v2)
 
@@ -150,50 +150,50 @@
                ] (d/as-of (d/db conn) #inst "2021-05-18T17:11:26.000-00:00") "Calculadora"))
 
 (def calculadoras1 (d/q '[:find (pull ?entity [*])
-                                :in $ ?in-palavra-chave
-                                :where [?entity :produto/palavras-chave ?in-palavra-chave]
-                                ] (d/db conn) "Calculadora"))
+                          :in $ ?in-palavra-chave
+                          :where [?entity :produto/palavras-chave ?in-palavra-chave]
+                          ] (d/db conn) "Calculadora"))
 (def calc-per-dbid (-> calculadoras1 ffirst :db/id))
 (pprint (d/pull (d/db conn) '[*] calc-per-dbid))
 
 ;; Aplica schema com id da aplicação
-(def schema-v3 [{:db/ident :produto/nome
-                 :db/valueType :db.type/string
+(def schema-v3 [{:db/ident       :produto/nome
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O nome de um produto"}
-                {:db/ident :produto/slug
-                 :db/valueType :db.type/string
+                 :db/doc         "O nome de um produto"}
+                {:db/ident       :produto/slug
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O caminho para acessar esse produto via http"}
-                {:db/ident :produto/preco
-                 :db/valueType :db.type/bigdec
+                 :db/doc         "O caminho para acessar esse produto via http"}
+                {:db/ident       :produto/preco
+                 :db/valueType   :db.type/bigdec
                  :db/cardinality :db.cardinality/one
-                 :db/doc "O preco de um produto com precisão monetária"}
-                {:db/ident :produto/palavras-chave
-                 :db/valueType :db.type/string
+                 :db/doc         "O preco de um produto com precisão monetária"}
+                {:db/ident       :produto/palavras-chave
+                 :db/valueType   :db.type/string
                  :db/cardinality :db.cardinality/many
-                 :db/doc "As palavras-chave de produto"}
-                {:db/ident :produto/id
-                 :db/valueType :db.type/uuid
+                 :db/doc         "As palavras-chave de produto"}
+                {:db/ident       :produto/id
+                 :db/valueType   :db.type/uuid
                  :db/cardinality :db.cardinality/one
-                 :db/unique :db.unique/identity
-                 :db/doc "Id do produto dentro da aplicação"} ])
+                 :db/unique      :db.unique/identity
+                 :db/doc         "Id do produto dentro da aplicação"}])
 
 (d/transact conn schema-v3)
 
 ;; Usa Lookup-Ref em item sem uuid
 (def calculadoras2 (d/q '[:find (pull ?entity [*])
-                                :in $ ?in-palavra-chave
-                                :where [?entity :produto/palavras-chave ?in-palavra-chave]
-                                ] (d/db conn) "Calculadora"))
+                          :in $ ?in-palavra-chave
+                          :where [?entity :produto/palavras-chave ?in-palavra-chave]
+                          ] (d/db conn) "Calculadora"))
 (def calc-per-produtoid (-> calculadoras2 ffirst :produto/id))
 (pprint (d/pull (d/db conn) '[*] [:produto/id calc-per-produtoid]))
 
 ;; Usa Lookup-Ref em item com uuid
 (def desktop (d/q '[:find (pull ?entity [*])
-                          :in $ ?in-palavra-chave
-                          :where [?entity :produto/palavras-chave ?in-palavra-chave]
-                          ] (d/db conn) "Desktop"))
+                    :in $ ?in-palavra-chave
+                    :where [?entity :produto/palavras-chave ?in-palavra-chave]
+                    ] (d/db conn) "Desktop"))
 (def dektop-produto-id (-> desktop ffirst :produto/id))
 (pprint (d/pull (d/db conn) '[*] [:produto/id dektop-produto-id]))
 
