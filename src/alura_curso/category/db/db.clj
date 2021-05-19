@@ -244,4 +244,11 @@
 
 (pprint (produtos-adicionados-pelo-ip (d/db conn) "200.200.123.12"))
 (pprint (produtos-adicionados-pelo-ip (d/db conn) "200.200.123.13"))
+
+;; Busca categoria por uuid
+(pprint (d/q '[:find ?categoria
+               :in $ ?id-categ
+               :where [?categoria :categoria/id ?id-categ]]
+             (d/db conn) (:categoria/id roupas)))
+
 ;(pprint (d/delete-database db-uri))
