@@ -46,6 +46,21 @@
                  :db/cardinality :db.cardinality/one
                  :db/doc         "O nome da categoria"}
 
+                ; Seção
+                {:db/ident       :secao/id
+                 :db/valueType   :db.type/uuid
+                 :db/cardinality :db.cardinality/one
+                 :db/unique      :db.unique/identity
+                 :db/doc         "Id da seção dentro da aplicação"}
+                {:db/ident       :secao/nome
+                 :db/valueType   :db.type/string
+                 :db/cardinality :db.cardinality/one
+                 :db/doc         "O nome da Seção"}
+                {:db/ident       :secao/categoria
+                 :db/valueType   :db.type/ref
+                 :db/cardinality :db.cardinality/one
+                 :db/doc         "A categoria associada com a seção"}
+
                 ; Transações
                 {:db/ident :tx-data/ip
                  :db/valueType :db.type/string
@@ -250,5 +265,22 @@
                :in $ ?id-categ
                :where [?categoria :categoria/id ?id-categ]]
              (d/db conn) (:categoria/id roupas)))
+
+(def secao-vestes {:secao/id (uuid)
+                   :secao/nome "Vestes"
+                   :secao/categoria roupas
+                   })
+@(d/transact conn [secao-vestes])
+
+@(d/transact conn [[:db/add [:produto/id (:produto/id legging)]
+               :produto/categoria
+               [:secao/id (:secao/id secao-vestes)]]
+              ])
+
+(pprint (d/q '[:find (pull ?produto [*, {:produto/categoria [*, {:secao/categoria [*]}]}])
+               :in $ ?prod-id
+               :where [?produto :produto/id ?prod-id]]
+             (d/db conn) (:produto/id legging)))
+
 
 ;(pprint (d/delete-database db-uri))
