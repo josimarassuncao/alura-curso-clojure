@@ -1,4 +1,4 @@
-# Introduction to alura-curso
+# Introduction to alura_curso
 
 
 

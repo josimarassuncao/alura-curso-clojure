@@ -1,4 +1,4 @@
-# alura-curso
+# alura_curso
 
 A Clojure library designed to ... well, that part is up to you.
 
