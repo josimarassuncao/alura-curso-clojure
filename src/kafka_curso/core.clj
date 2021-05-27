@@ -88,7 +88,8 @@
 (producer! user-topic-name (create-user-message user-alice))
 
 ;; Consumer code
-(defn- build-consumer-properties [group-id, max-poll]
+(defn- build-consumer-properties
+  [group-id, max-poll]
   (doto (Properties.)
     (.putAll {ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG,       "127.0.0.1:9092"
               ConsumerConfig/KEY_DESERIALIZER_CLASS_CONFIG   "org.apache.kafka.common.serialization.StringDeserializer"
@@ -101,18 +102,17 @@
 
 (defn- prt-record
   [record]
-  (println (class record))
+  (println (str record))
   (let [record-value (.value record)
-        record-key (.key record)]
-    (printf "Consumed record with key %s and value %s\n"
-            (record-key
-            record-value))))
+        rec-key (.key record)]
+    (printf "Consumed record with key: %s \nvalue %s\n"
+            rec-key record-value)))
 
 (defn consumer! [topic]
   (with-open [consumer (KafkaConsumer. (build-consumer-properties "READ-USER-CREATED" 1))]
     (.subscribe consumer [topic])
     (loop []
-        ;(println "Waiting for message in KafkaConsumer.poll")
+      ;(println "Waiting for message in KafkaConsumer.poll")
         (let [duration (Duration/ofMillis 100)
               poll-records (seq (.poll consumer duration))]
           ;; limits polling for while still has records,
