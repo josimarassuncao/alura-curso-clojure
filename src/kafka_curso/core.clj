@@ -113,9 +113,9 @@
                          new-tc))
                      tc
                      records)]
-        (println "Waiting for message in KafkaConsumer.poll")
-        (let [poll-records (seq (.poll consumer (Duration/ofSeconds 5)))]
-          ;; limits polling for while still has records or 5 seconds,
+        ;(println "Waiting for message in KafkaConsumer.poll")
+        (let [poll-records (seq (.poll consumer (Duration/ofMillis 100)))]
+          ;; limits polling for while still has records,
           ;; in case needs it running remove the when condition
           (if poll-records
             (recur new-tc poll-records)
