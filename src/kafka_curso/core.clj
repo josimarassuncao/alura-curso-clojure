@@ -12,7 +12,7 @@
     (java.time Duration)))
 
 ;; Producer code
-(defn- build-properties []
+(defn- build-producer-properties []
   (doto (Properties.)
     (.putAll {ProducerConfig/BOOTSTRAP_SERVERS_CONFIG      "127.0.0.1:9092"
               ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   "org.apache.kafka.common.serialization.StringSerializer"
@@ -32,51 +32,63 @@
       (finally
         (.close ac)))))
 
-(defn producer! [topic]
-  (let [props (build-properties)
+(defn producer! [topic topic-message]
+  (let [props (build-producer-properties)
         print-ex (comp println (partial str "Failed to deliver message: "))
         print-metadata #(printf "Produced record to topic %s partition [%d] @ offest %d\n"
                                 (.topic %)
                                 (.partition %)
                                 (.offset %))
-        create-msg #(let [k "alice"
-                          v (json/write-str {:count %})]
-                      (printf "Producing record: %s\t%s\n" k v)
-                      (ProducerRecord. topic k v))
+        ;create-msg #(create-user-message user-alice)
         partitions 3
         replication 3]
     ;; with-open is a function that closes a handle once the process terminated
     (with-open [producer (KafkaProducer. props)]
       (ensure-topic-created! topic partitions replication props)
       ;; We can use callbacks to handle the result of a send, like this:
-      (let [callback (reify Callback
-                       (onCompletion [this metadata exception]
-                         (if exception
-                           (print-ex exception)
-                           (print-metadata metadata))))]
-        (doseq [i (range 5)]
-          (.send producer (create-msg i) callback))
-        (.flush producer))
+      ;(let [callback (reify Callback
+      ;                 (onCompletion [this metadata exception]
+      ;                   (if exception
+      ;                     (print-ex exception)
+      ;                     (do
+      ;                       (print "callback-")
+      ;                       (print-metadata metadata)))))]
+      ;
+      ;  (.send producer topic-message callback)
+      ;  (.flush producer))
       ;; Or we could wait for the returned futures to resolve, like this:
-      (let [futures (doall (map #(.send producer (create-msg %)) (range 5 10)))]
+      (let [future [(#(.send producer topic-message))]]
         (.flush producer)
-        (while (not-every? future-done? futures)
+        (while (not-every? future-done? future)
           ;; What requires a 50ms wait? Does the JVM requires it?
           (Thread/sleep 50))
-        (doseq [fut futures]
+        (doseq [fut future]
           (try
             (let [metadata (deref fut)]
+              (print "futures-")
               (print-metadata metadata))
             (catch Exception e
               (print-ex e)))))
-      (printf "10 messages were produced to topic %s!\n" topic))))
+      (printf "1 message were produced to topic %s!\n" topic))))
 
 ;; Produces the messages
-(def ^:private topic-name "USER-CREATED")
-(producer! topic-name)
+(def ^:private user-topic-name "USER-CREATED")
+
+(defn- create-user-message
+  [user-msg]
+  (let [msg-key (str (:user-id user-msg))
+        msg-value (json/write-str user-msg)
+        topic "USER-CREATED"]
+    (ProducerRecord. topic msg-key msg-value)))
+
+(def user-alice {:user-id (str #uuid"da1eec90-a0fc-480c-be55-51dcaf7e69d8")
+                 :name     "Alice"
+                 })
+
+(producer! user-topic-name (create-user-message user-alice))
 
 ;; Consumer code
-(defn- build-properties-consumer [group-id, max-poll]
+(defn- build-consumer-properties [group-id, max-poll]
   (doto (Properties.)
     (.putAll {ConsumerConfig/BOOTSTRAP_SERVERS_CONFIG,       "127.0.0.1:9092"
               ConsumerConfig/KEY_DESERIALIZER_CLASS_CONFIG   "org.apache.kafka.common.serialization.StringDeserializer"
@@ -87,40 +99,30 @@
               ConsumerConfig/AUTO_OFFSET_RESET_CONFIG        "earliest"})
     ))
 
-;(defn- prt-record
-;  [record]
-;  (println " record -> " record)
-;  (let [value (.value record)]
-;    (printf "Consumed record with key %s and value %s, and updated total count to %d\n"
-;            (.key record)
-;            value
-;            n)))
+(defn- prt-record
+  [record]
+  (println (class record))
+  (let [record-value (.value record)
+        record-key (.key record)]
+    (printf "Consumed record with key %s and value %s\n"
+            (record-key
+            record-value))))
 
 (defn consumer! [topic]
-  (with-open [consumer (KafkaConsumer. (build-properties-consumer "READ-USER-CREATED" 1))]
+  (with-open [consumer (KafkaConsumer. (build-consumer-properties "READ-USER-CREATED" 1))]
     (.subscribe consumer [topic])
-    (loop [tc 0
-           records []]
-      (let [new-tc (reduce
-                     (fn [tc record]
-                       (let [value (.value record)
-                             cnt (get (json/read-str value) "count")
-                             new-tc (+ tc cnt)]
-                         (printf "Consumed record with key %s and value %s, and updated total count to %d\n"
-                                 (.key record)
-                                 value
-                                 new-tc)
-                         new-tc))
-                     tc
-                     records)]
+    (loop []
         ;(println "Waiting for message in KafkaConsumer.poll")
-        (let [poll-records (seq (.poll consumer (Duration/ofMillis 100)))]
+        (let [duration (Duration/ofMillis 100)
+              poll-records (seq (.poll consumer duration))]
           ;; limits polling for while still has records,
           ;; in case needs it running remove the when condition
           (if poll-records
-            (recur new-tc poll-records)
-            (println "finishing topic" topic-name "reading!"))))
+            (do
+              (prt-record (first poll-records))
+              (recur))
+            (println "finishing topic" user-topic-name "reading!")))
       )))
 
 (println "\n\n\n\n\nGetting data with KafkaConsumer")
-(consumer! topic-name)
+(consumer! user-topic-name)
