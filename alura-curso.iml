@@ -17,7 +17,7 @@
     <orderEntry type="library" name="Leiningen: com.datomic/datomic-lucene-core:3.3.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.datomic/datomic-pro:1.0.6269" level="project" />
     <orderEntry type="library" name="Leiningen: com.datomic/query-support:0.8.27" level="project" />
-    <orderEntry type="library" name="Leiningen: com.github.luben/zstd-jni:1.4.9-1" level="project" />
+    <orderEntry type="library" name="Leiningen: com.github.luben/zstd-jni:1.4.5-6" level="project" />
     <orderEntry type="library" name="Leiningen: com.google.code.findbugs/jsr305:3.0.2" level="project" />
     <orderEntry type="library" name="Leiningen: com.google.errorprone/error_prone_annotations:2.3.4" level="project" />
     <orderEntry type="library" name="Leiningen: com.google.guava/failureaccess:1.0.1" level="project" />
@@ -48,12 +48,13 @@
     <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpclient:4.5.9" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.httpcomponents/httpcore:4.4.11" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.johnzon/johnzon-core:0.9.5" level="project" />
-    <orderEntry type="library" name="Leiningen: org.apache.kafka/kafka-clients:2.8.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.apache.kafka/kafka-clients:2.7.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.tomcat/tomcat-jdbc:7.0.27" level="project" />
     <orderEntry type="library" name="Leiningen: org.apache.tomcat/tomcat-juli:7.0.27" level="project" />
     <orderEntry type="library" name="Leiningen: org.checkerframework/checker-qual:3.5.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.10.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.specs.alpha:0.2.44" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/data.json:0.2.6" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/spec.alpha:0.2.176" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.cli:1.0.194" level="project" />
     <orderEntry type="library" name="Leiningen: org.codehaus.janino/commons-compiler-jdk:3.0.12" level="project" />
@@ -66,6 +67,6 @@
     <orderEntry type="library" name="Leiningen: org.slf4j/log4j-over-slf4j:1.7.30" level="project" />
     <orderEntry type="library" name="Leiningen: org.slf4j/slf4j-api:1.7.30" level="project" />
     <orderEntry type="library" name="Leiningen: org.slf4j/slf4j-nop:1.7.30" level="project" />
-    <orderEntry type="library" name="Leiningen: org.xerial.snappy/snappy-java:1.1.8.1" level="project" />
+    <orderEntry type="library" name="Leiningen: org.xerial.snappy/snappy-java:1.1.7.7" level="project" />
   </component>
 </module>
