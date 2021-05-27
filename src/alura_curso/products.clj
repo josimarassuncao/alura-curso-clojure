@@ -1,6 +1,6 @@
 (ns alura-curso.products)
 
-(def list-of-products {:backpack {:quantity 10, :price 59.99} ,
+(def ^:private list-of-products {:backpack {:quantity 10, :price 59.99} ,
                        :shoes {:quantity 10, :price 159.99},
                        :belt {:quantity 10, :price 19.99},
                        :hat {:quantity 10 :price 109.99},
@@ -47,7 +47,7 @@
       (map calculate-item)
       (reduce +)))
 
-(defn for-free?
+(defn- for-free?
   "check if the item has price 0"
   [data]
   ;(println data)
@@ -58,7 +58,7 @@
   (->> (get-products-data)
        (filter #(for-free? (second %)))))
 
-(def paid? (comp not for-free?))
+(def ^:private paid? (comp not for-free?))
 
 (defn get-paid-stuff []
   "returns the paid items from the list"
