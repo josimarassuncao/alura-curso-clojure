@@ -104,7 +104,7 @@
 ;                 :name     "Alice"
 ;                 })
 
-(def user-alice {:user-id "770198102934854528"
+(def user-alice {:user-id 770198102934854528
                  :name    "Alice"
                  })
 
