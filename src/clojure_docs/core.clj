@@ -1,6 +1,9 @@
 (ns clojure-docs.core
   (:use clojure.pprint))
 
+;(require '[clojure.repl :refer :all])
+
+
 (defn greeting
   ([] "Hello, World!")
   ([x] (str "Hello, " x "!"))
@@ -11,9 +14,7 @@
 (assert (= "Hello, Clojure!" (greeting "Clojure")))
 (assert (= "Good morning, Clojure!" (greeting "Good morning" "Clojure")))
 
-(defn do-nothing
-  [x]
-  x)
+(defn do-nothing [x] x)
 
 (do-nothing 1)
 (do-nothing :test)
@@ -147,6 +148,33 @@
               :last-name "Keen"
               :age 32
               :occupation "Programmer"}))
+
+(def kelly-3 (->Person "Kelly" nil nil "Programmer"))
+
+(def kelly-4 (map->Person
+               {:first-name "Kelly"
+                :occupation "Programmer"}))
+
+;; Does it represent extra properties?
+
+;(def kelly-5 (->Person "Kelly" "Keen" 32 "Programmer" "any-1" "any-2"))
+;; Execution error (ArityException) at nrepl.middleware.interruptible-eval/evaluate (interruptible_eval.clj:79).
+;Wrong number of args (6) passed to: clojure-docs.core/eval4467/->Person--4491
+
+(def kelly-6 (map->Person
+               {:first-name "Kelly"
+                :last-name "Keen"
+                :age 32
+                :occupation "Programmer"
+                :extra1 "value"
+                :extra2 :value}))
+
+(pprint kelly-1)
+(pprint kelly-2)
+(pprint kelly-3)
+(pprint kelly-4)
+;(pprint kelly-5)
+(pprint kelly-6)
 
 (defrecord Scope [name])
 (defrecord Function [name scopes])
