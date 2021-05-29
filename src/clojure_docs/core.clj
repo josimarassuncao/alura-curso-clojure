@@ -1,4 +1,5 @@
-(ns clojure-docs.core)
+(ns clojure-docs.core
+  (:use clojure.pprint))
 
 (defn greeting
   ([] "Hello, World!")
@@ -109,3 +110,68 @@
 ; The same as comp
 ((comp f1 f2) 3)
 ((comp f1 f2) -1)
+
+;; Vectors and Hashes
+
+(def v1 [1 2 3 4 5 6])
+(contains? v1 3)
+(contains? v1 9)
+
+;; these next sentence fails, and I'm clueless know why?
+(contains? (conj v1 9 10) 9)
+
+(def v2 (conj v1 9 10))
+(contains? v2 9)
+
+(def h1 #{1 2 3 4 5 6})
+(contains? h1 3)
+(contains? h1 9)
+
+(contains? (conj h1 9 10) 9)
+
+(def h2 (conj h1 9 10))
+(contains? h2 9)
+
+(into h2 v2)
+(into v2 h2)
+
+;; Define a record structure
+(defrecord Person [first-name last-name age occupation ])
+
+;; Positional constructor - generated
+(def kelly-1 (->Person "Kelly" "Keen" 32 "Programmer"))
+
+;; Map constructor - generated
+(def kelly-2 (map->Person
+             {:first-name "Kelly"
+              :last-name "Keen"
+              :age 32
+              :occupation "Programmer"}))
+
+(defrecord Scope [name])
+(defrecord Function [name scopes])
+
+(def s-1 (->Scope "manager"))
+(def s-2 (->Scope "lead"))
+(def s-3 (->Scope "engineer"))
+
+(def fu-1 (->Function "IT manager" [s-1]))
+(def fu-2 (->Function "Dev specialist" [s-2 s-3]))
+
+(pprint fu-1)
+(pprint fu-2)
+
+(first (seq (:scopes fu-2)))
+(rest (seq (:scopes fu-2)))
+
+;; on this next command something curious happen
+;; the seq after the first, turns the keys and values into pairs in a vector
+;; and because of that no error is raised =O
+(rest (seq (first (seq (:scopes fu-2)))))
+
+(seq {:a 1 :b 2})
+
+;; this next command throws an error
+;(seq (first '(1)))
+(seq (first []))
+(seq (first {:a 1 :b 2}))
