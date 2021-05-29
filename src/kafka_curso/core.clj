@@ -3,7 +3,8 @@
   (:use clojure.pprint)
   (:require
     [clojure.data.json :as json]
-    [clojure.edn :as edn])
+    [clojure.edn :as edn]
+    [clojure.data.fressian :as fressian])
   (:import
     (java.util Properties UUID)
     (org.apache.kafka.clients.admin AdminClient NewTopic)
@@ -12,16 +13,18 @@
     (org.apache.kafka.common.errors TopicExistsException)
     (java.io ByteArrayOutputStream ByteArrayInputStream)
     (org.apache.kafka.common.serialization ByteArrayDeserializer ByteArraySerializer)
+    (org.fressian.impl BytesOutputStream)
+    (org.fressian Reader Writer)
     (java.time Duration)))
 
 ;; Producer code
 (defn- build-producer-properties []
   (doto (Properties.)
     (.putAll {ProducerConfig/BOOTSTRAP_SERVERS_CONFIG      "127.0.0.1:9092"
-              ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   "org.apache.kafka.common.serialization.StringSerializer"
-              ;ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   (.getName ByteArraySerializer)
-              ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG "org.apache.kafka.common.serialization.StringSerializer"
-              ;ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG (.getName ByteArraySerializer)
+              ;ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   "org.apache.kafka.common.serialization.StringSerializer"
+              ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   (.getName ByteArraySerializer)
+              ;ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG "org.apache.kafka.common.serialization.StringSerializer"
+              ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG (.getName ByteArraySerializer)
               ProducerConfig/ACKS_CONFIG                   "all"})
     ))
 
@@ -81,11 +84,23 @@
 
 (defn- serialize-message
   [user-msg]
-  (pr-str user-msg)
-  ;(with-open [b-out (ByteArrayOutputStream.)]
-  ;  (.write b-out (.getBytes (pr-str user-msg)))
-  ;  (let [content (.toByteArray b-out)]
-  ;    content))
+  ;; transforming immediately to string
+  ;(pr-str user-msg)
+
+  ;; trying using java component to turns into ByteArray
+  (with-open [b-out (ByteArrayOutputStream.)]
+    (.write b-out (.getBytes (pr-str user-msg)))
+    (let [content (.toByteArray b-out)]
+      content))
+
+  ;; trying using fressian and common-kafka approach
+  ;(with-open [bos (BytesOutputStream.)]
+  ;  (let [writer ^Writer (fressian/create-writer bos)]
+  ;    (.writeObject writer user-msg)
+  ;    (.toByteArray bos)))
+
+  ;; trying simplistic approach using fressian
+  ;(fressian/write user-msg)
   )
 
 (defn- create-user-message
@@ -104,7 +119,7 @@
 ;                 :name     "Alice"
 ;                 })
 
-(def user-alice {:user-id 770198102934854528
+(def user-alice {:user-id "770198102934854528"
                  :name    "Alice"
                  })
 
