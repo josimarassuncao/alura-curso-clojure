@@ -2,29 +2,23 @@
   (:gen-class)
   (:use clojure.pprint)
   (:require
-    [clojure.data.json :as json]
-    [clojure.edn :as edn]
-    [clojure.data.fressian :as fressian])
+    [clojure.edn :as edn])
   (:import
     (java.util Properties UUID)
     (org.apache.kafka.clients.admin AdminClient NewTopic)
     (org.apache.kafka.clients.producer Callback KafkaProducer ProducerConfig ProducerRecord)
     (org.apache.kafka.clients.consumer ConsumerConfig KafkaConsumer)
     (org.apache.kafka.common.errors TopicExistsException)
-    (java.io ByteArrayOutputStream ByteArrayInputStream)
-    (org.apache.kafka.common.serialization ByteArrayDeserializer ByteArraySerializer)
-    (org.fressian.impl BytesOutputStream)
-    (org.fressian Reader Writer)
     (java.time Duration)))
 
 ;; Producer code
 (defn- build-producer-properties []
   (doto (Properties.)
     (.putAll {ProducerConfig/BOOTSTRAP_SERVERS_CONFIG      "127.0.0.1:9092"
-              ;ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   "org.apache.kafka.common.serialization.StringSerializer"
-              ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   (.getName ByteArraySerializer)
-              ;ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG "org.apache.kafka.common.serialization.StringSerializer"
-              ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG (.getName ByteArraySerializer)
+              ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   "org.apache.kafka.common.serialization.StringSerializer"
+              ;ProducerConfig/KEY_SERIALIZER_CLASS_CONFIG   (.getName ByteArraySerializer)
+              ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG "org.apache.kafka.common.serialization.StringSerializer"
+              ;ProducerConfig/VALUE_SERIALIZER_CLASS_CONFIG (.getName ByteArraySerializer)
               ProducerConfig/ACKS_CONFIG                   "all"})
     ))
 
@@ -40,7 +34,7 @@
       (finally
         (.close ac)))))
 
-(defn producer! [topic topic-message]
+(defn producer! [topic producer-message]
   (let [props (build-producer-properties)
         print-ex (comp println (partial str "Failed to deliver message: "))
         print-metadata #(printf "Produced record to topic %s partition [%d] @ offest %d\n"
@@ -63,12 +57,12 @@
       ;                       (print "callback-")
       ;                       (print-metadata metadata)))))]
       ;
-      ;  (.send producer topic-message callback)
+      ;  (.send producer producer-message callback)
       ;  (.flush producer))
 
       ;; 2> Or we could wait for the returned futures to resolve, like this:
-      (println "creating message")
-      (let [future-message (.send producer topic-message)]
+      ;(println "creating message -> " producer-message)
+      (let [future-message (.send producer producer-message)]
         (.flush producer)
         (do
           (try
@@ -82,44 +76,32 @@
 ;; Produces the messages
 (def ^:private user-topic-name "USER-CREATED")
 
+(defn user->str [user-map]
+  (pr-str user-map)
+  )
+
+(defn str->user [user-str]
+  (edn/read-string user-str)
+  )
+
 (defn- serialize-message
   [user-msg]
-  ;; transforming immediately to string
-  ;(pr-str user-msg)
-
-  ;; trying using java component to turns into ByteArray
-  (with-open [b-out (ByteArrayOutputStream.)]
-    (.write b-out (.getBytes (pr-str user-msg)))
-    (let [content (.toByteArray b-out)]
-      content))
-
-  ;; trying using fressian and common-kafka approach
-  ;(with-open [bos (BytesOutputStream.)]
-  ;  (let [writer ^Writer (fressian/create-writer bos)]
-  ;    (.writeObject writer user-msg)
-  ;    (.toByteArray bos)))
-
-  ;; trying simplistic approach using fressian
-  ;(fressian/write user-msg)
+  (user->str user-msg)
   )
 
 (defn- create-user-message
   [user-msg]
-  (let [msg-key (:user-id user-msg)
+  (let [msg-key (str (:user-id user-msg))
         ;msg-value (json/write-str user-msg)
         msg-value (serialize-message user-msg)
         topic "USER-CREATED"]
-    (ProducerRecord. topic msg-key msg-value)))
+    (ProducerRecord. topic msg-key (str msg-value))))
 
 (defn- build-user-id!
   []
   (long (Math/floor (* (Math/random) 1000000000000000000))))
 
-;(def user-alice {:user-id  #uuid"da1eec90-a0fc-480c-be55-51dcaf7e69d8"
-;                 :name     "Alice"
-;                 })
-
-(def user-alice {:user-id "770198102934854528"
+(def user-alice {:user-id 770198102934854528
                  :name    "Alice"
                  })
 
@@ -143,10 +125,10 @@
 (defn- prt-record
   [record]
   (println (str record))
-  (let [record-value (.value record)
+  (let [record-value (str->user (.value record))
         record-key (.key record)]
-    (printf "Consumed record with key: %s \n" record-key)
-    (printf "Consumed record with value %s\n" record-value)))
+    (printf "key: %s (%s) \n" record-key (class record-key))
+    (printf "value: %s (%s)\n" record-value (class record-value))))
 
 (defn consumer! [topic]
   (with-open [consumer (KafkaConsumer. (build-consumer-properties "READ-USER-CREATED" 1))]
