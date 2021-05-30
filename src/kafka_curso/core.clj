@@ -101,8 +101,13 @@
   []
   (long (Math/floor (* (Math/random) 1000000000000000000))))
 
-(def user-alice {:user-id 770198102934854528
-                 :name    "Alice"
+(def user-alice {:user-id   770198102934854528
+                 :name      "Alice"
+                 :signed_at (java.util.Date.)
+                 :admin     true
+                 :scopes    [:dev :data]
+                 :id        #uuid"95979276-e172-431a-8720-5a5be55cb87e"
+                 :limit     1280.56
                  })
 
 (producer! user-topic-name (create-user-message user-alice))
@@ -146,5 +151,5 @@
           (println "finishing topic" user-topic-name "reading!")))
       )))
 
-(println "\n\n\n\n\nGetting data with KafkaConsumer")
+(println "\n\nGetting data with KafkaConsumer")
 (consumer! user-topic-name)
