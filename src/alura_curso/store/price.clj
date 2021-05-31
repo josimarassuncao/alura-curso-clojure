@@ -1,4 +1,4 @@
-(ns alura-curso.price
+(ns alura-curso.store.price
   (:require [clojure.test :refer :all]
             [alura-curso.products :refer :all]))
 

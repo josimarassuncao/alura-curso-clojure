@@ -1,4 +1,4 @@
-(ns alura-curso.products)
+(ns alura-curso.store.products)
 
 (def ^:private list-of-products {:backpack {:quantity 10, :price 59.99} ,
                        :shoes {:quantity 10, :price 159.99},

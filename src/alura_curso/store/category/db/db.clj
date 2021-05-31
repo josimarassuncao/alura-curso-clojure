@@ -1,4 +1,4 @@
-(ns alura-curso.category.db.db
+(ns alura-curso.store.category.db.db
   (:use clojure.pprint)
   (:require [datomic.api :as d]))
 
