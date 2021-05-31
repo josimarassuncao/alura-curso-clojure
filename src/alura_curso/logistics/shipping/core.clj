@@ -7,34 +7,46 @@
 (println "Starts distribution center - shipping")
 (pprint distribution-center)
 
+(defn enqueue!
+  [department item]
+  (swap! distribution-center s-logic/add-shipping department item))
+
+(defn transfer!
+  [department-from department-to]
+  (swap! distribution-center s-logic/transfer department-from department-to)
+  )
+
+(def ^:private items-list-1 [[:general "111"] [:general "222"] [:general "333"] [:general "444"]])
+(def ^:private transfers-1 [[:general :sports] [:general :sports] [:general :souvenirs] [:general :souvenirs]])
+
+(def ^:private items-list-2 [[:general "555"] [:general "666"] [:general "777"] [:general "888"]])
+(def ^:private transfers-2 [[:sports :clothes] [:general :electronics] [:general :electronics] [:general :electronics] [:general :clothes]])
+
 (defn simulates-a-day
   []
   ;; "Adds data to general queue"
-  (swap! distribution-center s-logic/add-shipping :general "111")
-  (swap! distribution-center s-logic/add-shipping :general "222")
-  (swap! distribution-center s-logic/add-shipping :general "333")
-  (swap! distribution-center s-logic/add-shipping :general "444")
-  (swap! distribution-center s-logic/add-shipping :sports "sports-1")
-  (swap! distribution-center s-logic/add-shipping :electronics "elec-1")
-  (swap! distribution-center s-logic/add-shipping :clothes "clot-1")
-  (swap! distribution-center s-logic/add-shipping :any "any-1")
-  (swap! distribution-center s-logic/add-shipping :any "any-2")
+  (doseq [[queue item] items-list-1]
+    (enqueue! queue item))
+
   (println "1 > General queue data")
   (pprint distribution-center)
-  ;; Removes data from general queue
-  (swap! distribution-center s-logic/shipping-prepared! :general)
-  (swap! distribution-center s-logic/shipping-prepared! :sports)
-  (swap! distribution-center s-logic/shipping-prepared! :electronics)
-  (swap! distribution-center s-logic/shipping-prepared! :any)
-  (swap! distribution-center s-logic/shipping-prepared! :clothes)
+
+  ;; Transfers items between queues
+  (doseq [[d-from d-to] transfers-1]
+    (transfer! d-from d-to))
   (println "2 > General queue data")
-  (pprint distribution-center)
-  ;; Limits the size of the queues to 5 items
-  (swap! distribution-center s-logic/add-shipping :general "555")
-  (swap! distribution-center s-logic/add-shipping :general "666")
-  ;(swap! distribution-center s-logic/add-shipping :general "777")
-  ;(swap! distribution-center s-logic/add-shipping :general "888")
+  (pprint @distribution-center)
+
+  ;; "Adds data to general queue"
+  (doseq [[queue item] items-list-2]
+    (enqueue! queue item))
   (println "3 > General queue data")
+  (pprint (deref distribution-center))
+
+  ;; Transfers items between queues
+  (doseq [[d-from d-to] transfers-2]
+    (transfer! d-from d-to))
+  (println "4 > General queue data")
   (pprint distribution-center)
   )
 

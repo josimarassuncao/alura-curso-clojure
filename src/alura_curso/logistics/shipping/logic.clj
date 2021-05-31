@@ -18,7 +18,22 @@
       (update main-queue department conj item)
       (throw (ex-info "The queue is full" {:adding-item item})))))
 
-(defn shipping-prepared!
+(defn- remove-from-queue
   "Removes a product from the queue"
   [main-queue department]
   (update main-queue department pop))
+
+(defn- get-next-item
+  [main-queue q-from]
+  (-> (q-from main-queue)
+      peek))
+
+(defn transfer
+  "Applies the transference of the items between queues"
+  [main-queue q-from q-to]
+  ;; FIXME: when there is no item remaining in the queue should not move into the destiny
+  (let [item (get-next-item main-queue q-from)]
+    (-> main-queue
+    (remove-from-queue q-from)
+    (add-shipping q-to item)))
+  )
