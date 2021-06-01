@@ -1,12 +1,21 @@
 (ns alura-curso.logistics.carrier.logic
+  (:require [schema.core :as s])
   (:use clojure.pprint))
+
+;; turns the validation from this point ahead
+(s/set-fn-validation! true)
+
+(def CarrierSchema
+  "Schema for a carrier"
+  {:id s/Str
+   :name s/Str})
 
 (defn- build-some-id!
   []
   (long (Math/floor (* (Math/random) 1000000000))))
 
-(defn- new-carrier
-  [id name]
+(s/defn new-carrier :- CarrierSchema
+  [id :- s/Str, name :- s/Str]
   {:id id
    :name name})
 
@@ -54,3 +63,10 @@
     ))
 
 (test-carriers)
+
+;; predicates
+(def StrictlyPositive (s/pred pos? 'strictly-positive))
+
+(pprint (s/validate StrictlyPositive 1))
+;(pprint (s/validate StrictlyPositive 0))
+;(pprint (s/validate StrictlyPositive -1))
