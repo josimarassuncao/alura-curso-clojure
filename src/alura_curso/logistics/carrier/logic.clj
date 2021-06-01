@@ -5,19 +5,40 @@
 ;; turns the validation from this point ahead
 (s/set-fn-validation! true)
 
+;; predicates
+(def StrictlyPositive (s/pred pos? 'strictly-positive))
+
+(pprint (s/validate StrictlyPositive 1))
+;(pprint (s/validate StrictlyPositive 0))
+;(pprint (s/validate StrictlyPositive -1))
+
+(s/defn rating-limit-ok? :- s/Bool
+  "evaluates wheter a number is between 0 and 10"
+  [n :- s/Num]
+  (<= 0 n 10))
+
+;(def RatingLimit (s/pred rating-limit-ok? 'ratings-limit))
+
 (def CarrierSchema
   "Schema for a carrier"
   {:id s/Str
-   :name s/Str})
+   :name s/Str
+   :rating (s/constrained s/Num rating-limit-ok?)
+   })
 
 (defn- build-some-id!
   []
   (long (Math/floor (* (Math/random) 1000000000))))
 
 (s/defn new-carrier :- CarrierSchema
-  [id :- s/Str, name :- s/Str]
+  [id :- s/Str, name :- s/Str, rating :- s/Num]
   {:id id
-   :name name})
+   :name name
+   :rating rating})
+
+;(pprint (new-carrier "CA-307159425" "ACME Transports" -1))
+;(pprint (new-carrier "CA-307159425" "ACME Transports" 10.01))
+(pprint (new-carrier "CA-307159425" "ACME Transports" 8))
 
 (defn- adds-carrier
   [carriers-list carrier]
@@ -40,9 +61,9 @@
   (get carriers-list carrier-id))
 
 (defn test-carriers []
-  (let [carrier-1 (new-carrier "CA-307159425" "ACME Transports")
-        carrier-2 (new-carrier "CA-325240231" "Carrier Eased")
-        carrier-3 (new-carrier "CA-853891712" "We Carry All Stuff")
+  (let [carrier-1 (new-carrier "CA-307159425" "ACME Transports" 8.1M)
+        carrier-2 (new-carrier "CA-325240231" "Carrier Eased" 7.7)
+        carrier-3 (new-carrier "CA-853891712" "We Carry All Stuff" 9.5)
         carriers (reduce adds-carrier {} [carrier-1 carrier-2 carrier-3])
 
         destinies {}
@@ -64,9 +85,3 @@
 
 (test-carriers)
 
-;; predicates
-(def StrictlyPositive (s/pred pos? 'strictly-positive))
-
-(pprint (s/validate StrictlyPositive 1))
-;(pprint (s/validate StrictlyPositive 0))
-;(pprint (s/validate StrictlyPositive -1))
