@@ -72,7 +72,7 @@
       g-freight2 (calculate-freight guarded-order2)]
   (println "\n>> Freight value for:")
   (println "simple" (:order-id simple-order1) s-freight1)
-  (println "simple"  (:order-id simple-order2) s-freight2)
+  (println "simple" (:order-id simple-order2) s-freight2)
   (println "insured" (:order-id insured-order1) i-freight1)
   (println "insured" (:order-id insured-order2) i-freight2)
   (println "guarded" (:order-id guarded-order1) g-freight1)
@@ -96,12 +96,12 @@
 
 (defn- approval-from-manager
   [shipment]
-  (Thread/sleep 5000)
+  ;(Thread/sleep 5000)
   false)
 
 (defn- approval-from-supervisor
   [shipment]
-  (Thread/sleep 1000)
+  ;(Thread/sleep 1000)
   true)
 
 (defn- approval-from-whom?
