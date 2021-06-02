@@ -4,12 +4,12 @@
 
 (def empty-queue PersistentQueue/EMPTY)
 
+(defn- pair-key-empty
+  [h-map key]
+  (assoc h-map key empty-queue))
+
 (defn new-distribution!
   "Creates a new distribution line of products"
-  []
-  {:general     empty-queue
-   :sports      empty-queue
-   :clothes     empty-queue
-   :electronics empty-queue
-   :souvenirs   empty-queue
-   })
+  ([] (new-distribution! [:general, :sports, :clothes, :electronics :souvenirs]))
+  ([q-ids]
+   (reduce pair-key-empty {} q-ids)))
