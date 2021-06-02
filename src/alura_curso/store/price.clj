@@ -1,6 +1,6 @@
 (ns alura-curso.store.price
   (:require [clojure.test :refer :all]
-            [alura-curso.products :refer :all]))
+            [alura-curso.store.products :refer :all]))
 
 (defn discounted-price
   "applies 10% of discount"
@@ -14,7 +14,7 @@
   (> price 100))
 
 (defn get-prices []
-  (alura-curso.products/get-only-prices))
+  (alura-curso.store.products/get-only-prices))
 ; Collections are indexed from 0
 ; (list 0) // gets first element
 ; (get list 0) // gets first element

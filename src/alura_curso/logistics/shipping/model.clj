@@ -8,9 +8,8 @@
   "Creates a new distribution line of products"
   []
   {:general     empty-queue
-   :sports       empty-queue
+   :sports      empty-queue
    :clothes     empty-queue
    :electronics empty-queue
    :souvenirs   empty-queue
    })
-

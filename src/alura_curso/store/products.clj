@@ -17,7 +17,8 @@
   "returns the raw list of prices from the products"
   (->> (get-products-data)
        vals
-       (map #(:price %))))
+       ;; using keep instead of map given the existence of items with no :price
+       (keep #(:price %))))
 
 (defn remove-backpack []
   "remove the key :backpack from the collection"

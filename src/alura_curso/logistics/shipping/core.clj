@@ -3,8 +3,12 @@
             [alura-curso.logistics.shipping.logic :as s-logic])
   (:use [clojure pprint]))
 
-(def ^:private distribution-center (atom (s-model/new-distribution!)))
+(defn start-queue!
+  []
+  (def ^:private distribution-center (atom (s-model/new-distribution!))))
+
 (println "Starts distribution center - shipping")
+(start-queue!)
 (pprint distribution-center)
 
 (defn enqueue!
@@ -13,8 +17,7 @@
 
 (defn transfer!
   [department-from department-to]
-  (swap! distribution-center s-logic/transfer department-from department-to)
-  )
+  (swap! distribution-center s-logic/transfer department-from department-to))
 
 (def ^:private items-list-1 [[:general "111"] [:general "222"] [:general "333"] [:general "444"]])
 (def ^:private transfers-1 [[:general :sports] [:general :sports] [:general :souvenirs] [:general :souvenirs]])
